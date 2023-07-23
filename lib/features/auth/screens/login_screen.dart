@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
 
 void signInWithGoogle(BuildContext context, WidgetRef ref) {
-  ref.read(authControllerProvider).authenticate(context);
+  ref.read(authControllerProvider.notifier).authenticate(context);
 }
 
 class LoginScreen extends ConsumerWidget {

@@ -1,40 +1,52 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils.dart';
-import '../../../models/user_model.dart';
+import '../../../models/teacher_model.dart';
 import '../repositories/auth_repositories.dart';
 
 // final userProvider = StateProvider<UserModel?>((ref) => null);
-final userProvider = StateNotifierProvider<AuthController, UserModel?>((ref) {
-  return ref.watch(authControllerProvider);
+final teacherProvider = StateProvider<TeacherModel?>((ref) {
+  return null;
 });
 
-final authControllerProvider = Provider(
+final authControllerProvider = StateNotifierProvider<AuthController, bool>(
   (ref) => AuthController(
       authRepository: ref.read(authRepositoryProvider), ref: ref),
 );
 
-final authStateChangeProvider = FutureProvider((ref) {
-  final authController = ref.watch(authControllerProvider);
+final authStateChangeProvider = StreamProvider((ref) {
+  final authController = ref.watch(authControllerProvider.notifier);
   return authController.authStateChange;
 });
 
-class AuthController extends StateNotifier<UserModel?> {
+final getUserDataProvider = StreamProvider.family((ref, String uid) {
+  final authController = ref.watch(authControllerProvider.notifier);
+  return authController.getUserData(uid);
+});
+
+class AuthController extends StateNotifier<bool> {
   final AuthRepository _authRepository;
   final Ref _ref;
   AuthController({required AuthRepository authRepository, required Ref ref})
       : _authRepository = authRepository,
         _ref = ref,
-        super(null);
+        super(false);
 
-  Future<bool> get authStateChange => _authRepository.authStateChange;
+  Stream<User?> get authStateChange => _authRepository.authStateChange;
 
   void authenticate(BuildContext context) async {
     final user = await _authRepository.signInUsingGoogle();
-    user.fold((l) => showSnackBar(context, l.message), (r) {
-      state = r;
-    });
+    user.fold(
+        (l) => showSnackBar(context, l.message),
+        (teacherModel) => _ref
+            .read(teacherProvider.notifier)
+            .update((state) => teacherModel));
+  }
+
+  Stream<TeacherModel> getUserData(String uid) {
+    return _authRepository.getUserData(uid);
   }
 
   void logout() async {
