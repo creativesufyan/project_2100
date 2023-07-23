@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/keystores/
+/android/app/attendance-app-keystore.jks
 
 # Symbolication related
 app.*.symbols
