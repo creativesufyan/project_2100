@@ -1,6 +1,6 @@
 class FirebaseConstants {
   static const teachersCollection = 'teachers';
-  static const communitiesCollection = 'communities';
-  static const postsCollection = 'posts';
-  static const commentsCollection = 'comments';
+  static const coursesCollection = 'courses';
+  static const studentsCollection = 'students';
+  // static const commentsCollection = 'comments';
 }

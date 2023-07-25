@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../models/teacher_model.dart';
-import '../../auth/controllers/auth_controller.dart';
+import '../../models/teacher_model.dart';
+import '../auth/controllers/auth_controller.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key, required this.teacher, required this.ref});
