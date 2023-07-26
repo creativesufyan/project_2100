@@ -1,5 +1,6 @@
 import 'package:attendance_app/core/providers/sign_in_provider.dart';
 import 'package:attendance_app/models/course_attendance_model.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
@@ -9,7 +10,7 @@ import '../../../core/failure.dart';
 import '../../../core/typedefs.dart';
 import '../../../models/student_model.dart';
 
-final TakeAttendanceRepositoryProvider =
+final takeAttendanceRepositoryProvider =
     Provider<TakeAttendanceRepository>((ref) {
   return TakeAttendanceRepository(firestore: ref.read(firestoreProvider));
 });
@@ -44,7 +45,7 @@ class TakeAttendanceRepository {
           .doc(courseAttendanceModel.dateTime)
           .get();
       if (dateTimeDoc.exists) {
-        throw 'Attendance for this day is already taken!!';
+        throw 'Attendance for this day already exists!!';
       }
 
       return right(_courses
@@ -58,6 +59,42 @@ class TakeAttendanceRepository {
       return left(Failure(e.toString()));
     }
   }
+  //  FutureVoid takeAttendanceStudents(
+
+  //     StudentAttendanceModel studentAttendanceModel,
+  //     String name,
+  //     String section,
+  //     String roll) async {
+  //   try {
+  //     var coursesDoc = await _courses
+  //         .doc('cse')
+  //         .collection(section)
+  //         .doc(roll)
+  //         .collection("courses")
+  //         .doc(name).get();
+  //     if (coursesDoc.exists) {
+  //            return right( _students
+  //         .doc('cse')
+  //         .collection(section)
+  //         .doc(roll)
+  //         .collection("courses")
+  //         .doc(name)
+  //         .update({"present": FieldValue.arrayUnion(studentAttendanceModel.present.toList())}));
+  //     }
+
+  //     return right( _students
+  //         .doc('cse')
+  //         .collection(section)
+  //         .doc(roll)
+  //         .collection("courses")
+  //         .doc(name)
+  //         .set(studentAttendanceModel.toMap()));
+  //   } on FirebaseException catch (e) {
+  //     throw e.message!;
+  //   } catch (e) {
+  //     return left(Failure(e.toString()));
+  //   }
+  // }
 
   CollectionReference get _courses =>
       _firestore.collection(FirebaseConstants.coursesCollection);

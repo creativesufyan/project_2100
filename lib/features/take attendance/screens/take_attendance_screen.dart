@@ -1,15 +1,16 @@
-import 'package:attendance_app/core/size_config.dart';
 import 'package:attendance_app/features/take%20attendance/controller/take_attendance_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/common/error_text.dart';
 import '../../../core/common/loader.dart';
 
 enum Attendance { present, absent, late }
 
-final dateTimeProvider = StateProvider<DateTime>((ref) {
-  return DateTime.now();
+final dateTimeProvider = StateProvider<String>((ref) {
+  var formatter = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  return formatter;
 });
 
 class TakeAttendanceScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,8 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
             initialDate: DateTime.now(),
             firstDate: DateTime(2017, 4, 1),
             lastDate: DateTime(2030, 4, 30))
-        .then((value) => ref.read(dateTimeProvider.notifier).state = value!);
+        .then((value) => ref.read(dateTimeProvider.notifier).state =
+            DateFormat('yyyy-MM-dd').format(value ?? DateTime.now()));
   }
 
   List<Attendance> presentAttendance =
@@ -39,6 +41,7 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
   Set<String> present = {};
   Set<String> absent = {};
   Set<String> late = {};
+  bool didRun = false;
   @override
   Widget build(BuildContext context) {
     // final isLoading = ref.watch(takeAttendanceControllerProvider);
@@ -46,31 +49,31 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
         appBar: AppBar(
           title: const Text("Take Attendance"),
           actions: [
-            IconButton(
+            ElevatedButton(
                 onPressed: () {
                   showDateTimePicker(context, ref);
                 },
-                icon: const Icon(Icons.data_exploration))
+                child: Text(ref.watch(dateTimeProvider)))
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => ref
               .read(takeAttendanceControllerProvider.notifier)
-              .takeAttendance(
-                  present,
-                  absent,
-                  late,
-                  ref.read(dateTimeProvider.notifier).state.toIso8601String(),
-                  widget.name,
-                  context),
+              .takeAttendance(present, absent, late, ref.read(dateTimeProvider),
+                  widget.name, context),
           child: const Icon(Icons.add),
         ),
         body: ref.watch(getStudentListProvider(widget.section)).when(
               data: (data) {
+                if (!didRun) {
+                  for (var student in data) {
+                    present.add(student.roll);
+                  }
+                  didRun = true;
+                }
                 return ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (BuildContext context, int index) {
-                    present.add(data[index].roll);
                     return Card(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -102,31 +105,29 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                                 // selected at one time, so its value is always the first
                                 // item in the selected set.
                                 presentAttendance[index] = newSelection.first;
-                                if (presentAttendance[index] ==
-                                    Attendance.present) {
-                                  present.add(data[index].roll);
-                                  if (late.contains(data[index].roll)) {
-                                    late.remove(data[index].roll);
-                                  }
-                                  if (absent.contains(data[index].roll)) {
-                                    absent.remove(data[index].roll);
-                                  }
-                                } else if (presentAttendance[index] ==
-                                    Attendance.late) {
-                                  late.add(data[index].roll);
-                                  if (absent.contains(data[index].roll)) {
-                                    absent.remove(data[index].roll);
-                                  }
-                                } else {
-                                  if (present.contains(data[index].roll)) {
-                                    present.remove(data[index].roll);
-                                  }
-                                  if (late.contains(data[index].roll)) {
-                                    late.remove(data[index].roll);
-                                  }
-                                  absent.add(data[index].roll);
-                                }
                               });
+                              if (presentAttendance[index] ==
+                                  Attendance.present) {
+                                present.add(data[index].roll);
+
+                                late.remove(data[index].roll);
+
+                                absent.remove(data[index].roll);
+                              }
+                              if (presentAttendance[index] == Attendance.late) {
+                                late.add(data[index].roll);
+                                present.add(data[index].roll);
+
+                                absent.remove(data[index].roll);
+                              }
+                              if (presentAttendance[index] ==
+                                  Attendance.absent) {
+                                present.remove(data[index].roll);
+
+                                late.remove(data[index].roll);
+
+                                absent.add(data[index].roll);
+                              }
                             },
                           ),
                           const SizedBox(

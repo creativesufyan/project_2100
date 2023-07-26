@@ -13,18 +13,23 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            "Attendance App",
-            style: TextStyle(fontSize: 32.0),
-          ),
-          ElevatedButton.icon(
-              onPressed: () => signInWithGoogle(context, ref),
-              icon: const Icon(Icons.lunch_dining_rounded),
-              label: const Text("Login using google"))
-        ],
+      body: Align(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Attendance App",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 32.0),
+            ),
+            const SizedBox(
+              height: 16.0,
+            ),
+            ElevatedButton(
+                onPressed: () => signInWithGoogle(context, ref),
+                child: const Text("Login using google"))
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:attendance_app/features/take%20attendance/screens/take_attendanc
 import 'package:flutter/material.dart';
 
 import '../../core/size_config.dart';
+import '../view attendance/screens/view_attendance_screen.dart';
 
 class CourseCard extends StatelessWidget {
   const CourseCard({
@@ -143,7 +144,16 @@ class CourseCard extends StatelessWidget {
                         },
                         child: const Text("Take Attendance")),
                     ElevatedButton(
-                        onPressed: () {}, child: const Text("View Attendance")),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => ViewAttendanceScreen(
+                                        section: section,
+                                        name: name,
+                                      )));
+                        },
+                        child: const Text("View Attendance")),
                   ],
                 )
               ],

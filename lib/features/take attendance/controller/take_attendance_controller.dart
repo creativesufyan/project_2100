@@ -1,10 +1,10 @@
-import 'package:attendance_app/features/take%20attendance/repository/take_attendance_repository.dart';
-import 'package:attendance_app/models/course_attendance_model.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils.dart';
+import '../../../models/course_attendance_model.dart';
 import '../../../models/student_model.dart';
+import '../repository/take_attendance_repository.dart';
 
 final getStudentListProvider = StreamProvider.family((ref, String section) {
   return ref
@@ -15,7 +15,7 @@ final getStudentListProvider = StreamProvider.family((ref, String section) {
 final takeAttendanceControllerProvider =
     StateNotifierProvider<TakeAttendanceController, bool>((ref) {
   return TakeAttendanceController(
-      takeAttendanceRepository: ref.read(TakeAttendanceRepositoryProvider));
+      takeAttendanceRepository: ref.read(takeAttendanceRepositoryProvider));
 });
 
 class TakeAttendanceController extends StateNotifier<bool> {
@@ -30,6 +30,10 @@ class TakeAttendanceController extends StateNotifier<bool> {
     state = true;
     CourseAttendanceModel courseAttendanceModel = CourseAttendanceModel(
         present: present, absent: absent, late: late, dateTime: dateTime);
+
+    // StudentAttendanceModel studentAttendanceModel = StudentAttendanceModel(
+    //     present: present, absent: absent, late: late, courseName: name);
+
     final res = await _takeAttendanceRepository.takeAttendance(
         courseAttendanceModel, name);
     state = false;
